@@ -1,2 +1,3 @@
 # Notes API
-test branch
+A simple REST API for managing notes
+
