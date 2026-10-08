@@ -1,0 +1,27 @@
+{
+  "name": "notes-api",
+  "version": "1.0.0",
+  "description": "A REST API for managing notes",
+  "main": "src/server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naufaluqh/notes-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naufaluqh/notes-api/issues"
+  },
+  "homepage": "https://github.com/naufaluqh/notes-api#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
