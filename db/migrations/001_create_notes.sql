@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS notes (
+  id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  title      TEXT NOT NULL CHECK (char_length(title) BETWEEN 1 AND 200),
+  body       TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
