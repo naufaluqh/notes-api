@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('./db');
+const notesRouter = require('./routes/notes');
 
 const app = express();
 
@@ -23,6 +24,17 @@ app.get('/ready', async (req, res) => {
     console.error('Readiness check failed:', err.message);
     res.status(503).json({ status: 'NOT_READY', database: 'DOWN' });
   }
+});
+
+app.use('/notes', notesRouter);
+
+// Error handler: generic messages for clients, details only in the server log.
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 module.exports = app;
