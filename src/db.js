@@ -1,4 +1,8 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+
+// PostgreSQL BIGINT (type id 20) arrives as a string by default.
+// Our ids stay far below Number.MAX_SAFE_INTEGER, so we return them as plain numbers.
+types.setTypeParser(20, (value) => Number(value));
 
 // Connection settings come from environment variables, never from the source code.
 const pool = new Pool({
