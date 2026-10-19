@@ -35,6 +35,14 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    # Hardening: the app only needs to read its own files and talk to the database.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   notes_db_data:
