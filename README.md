@@ -7,43 +7,56 @@ This project is also a hands-on **DevSecOps** learning project: every change goe
 ## Tech stack
 
 - Node.js and Express
-- PostgreSQL 16 (run with Docker Compose)
+- PostgreSQL 16
+- Docker and Docker Compose
 - Jest and Supertest for automated tests
 - GitHub Actions (planned)
 
 ## Getting started
 
-Requirements: Node.js 22 or newer, Docker with Docker Compose.
+Requirements: Docker with Docker Compose. Node.js 22 or newer is only needed to run the tests.
 
-1. Clone the repository and install dependencies:
+### Run everything with Docker Compose
 
-    git clone https://github.com/naufaluqh/notes-api.git
-    cd notes-api
-    npm ci
+1. Clone the repository:
+
+```bash
+   git clone https://github.com/naufaluqh/notes-api.git
+   cd notes-api
+```
 
 2. Create your local settings file and set a strong password:
 
-    cp .env.example .env
-    openssl rand -hex 16
+```bash
+   cp .env.example .env
+   openssl rand -hex 16
+```
 
    Put the generated value in `POSTGRES_PASSWORD` inside `.env`. The `.env` file is ignored by Git and must never be committed.
 
-3. Start the database and wait until it is healthy:
+3. Start the database and the API, then wait until both are healthy:
 
-    docker compose up -d
-    docker compose ps
+```bash
+   docker compose up -d --build
+   docker compose ps
+```
 
-4. Create the tables and the test database:
+4. Create the tables and check that the API is ready:
 
-    npm run db:migrate
-    docker compose exec db psql -U notes_app -d notes -c "CREATE DATABASE notes_test;"
+```bash
+   docker compose exec api node db/migrate.js
+   curl http://localhost:3000/ready
+```
 
-5. Run the tests, then start the API:
+The API listens on http://localhost:3000. Stop everything with `docker compose down` (data is kept in a Docker volume). Add `-v` to delete the data as well.
 
-    npm test
-    npm start
+### Run the tests
 
-The API listens on http://localhost:3000.
+```bash
+npm ci
+docker compose exec db psql -U notes_app -d notes -c "CREATE DATABASE notes_test;"
+npm test
+```
 
 ## API
 
@@ -59,11 +72,15 @@ The API listens on http://localhost:3000.
 
 Errors are returned as JSON, for example `{"error":"Note not found"}`. Invalid input returns 400, a missing note returns 404, and a database outage returns 503.
 
+## Container security
+
+The API container runs as an unprivileged user with a read-only filesystem, no extra Linux capabilities and `no-new-privileges`. Package managers are removed from the runtime image, and no secret is ever baked into the image: settings are injected at run time from `.env`.
+
 ## Roadmap
 
 - [x] Repository foundation (Git, pull requests, protected `main` branch)
 - [x] Application and automated tests
-- [ ] Containerization with Docker
+- [x] Containerization with Docker
 - [ ] Continuous integration pipeline
 - [ ] Security gates (secret scanning, dependency scanning, container scanning, SAST)
 - [ ] Infrastructure as code and deployment
