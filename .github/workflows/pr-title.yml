@@ -1,0 +1,30 @@
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  conventional-title:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check the pull request title
+        env:
+          # Pass the title through an environment variable. Never paste
+          # github.event.* values directly into the script: a crafted title
+          # could otherwise run as a command (script injection).
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: .{1,100}$'
+          if [[ "$PR_TITLE" =~ $pattern ]]; then
+            echo "Title OK: $PR_TITLE"
+          else
+            echo "Invalid title: $PR_TITLE"
+            echo "Use the form 'type: description', for example 'feat: add note search'."
+            echo "Allowed types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert."
+            exit 1
+          fi
