@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
@@ -39,10 +39,10 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -52,3 +52,41 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  docker:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v6
+
+      - name: Create a throwaway .env file
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=notes_app
+          POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          POSTGRES_DB=notes
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          EOF
+
+      - name: Build the image and start the stack
+        run: docker compose up -d --build --wait
+
+      - name: Run the database migrations inside the container
+        run: docker compose exec -T api node db/migrate.js
+
+      - name: Smoke test the API
+        run: |
+          curl --fail --silent --show-error http://localhost:3000/ready
+          curl --fail --silent --show-error -X POST http://localhost:3000/notes \
+            -H "Content-Type: application/json" -d '{"title":"ci smoke test"}'
+          curl --fail --silent --show-error http://localhost:3000/notes
+
+      - name: Show container logs when something failed
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down -v
