@@ -5,6 +5,10 @@ on:
     branches: [main]
   push:
     branches: [main]
+  # New vulnerabilities are published every day, so also scan weekly (Monday 02:00 UTC)
+  # even when nobody opens a pull request.
+  schedule:
+    - cron: '0 2 * * 1'
 
 permissions:
   contents: read
@@ -24,3 +28,19 @@ jobs:
           docker run --rm -v "$PWD:/repo" \
             zricethezav/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
             git /repo --redact -v
+
+  dependency-scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
