@@ -44,3 +44,24 @@ jobs:
 
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+  image-scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        run: docker build --pull -t notes-api:scan .
+
+      - name: Save the image to a file
+        run: docker save notes-api:scan -o "$RUNNER_TEMP/image.tar"
+
+      - name: Scan the image for known vulnerabilities
+        run: |
+          docker run --rm -v "$RUNNER_TEMP:/scan:ro" \
+            aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa \
+            image --input /scan/image.tar --scanners vuln \
+            --severity HIGH,CRITICAL --ignore-unfixed --no-progress --exit-code 1
