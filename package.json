@@ -24,6 +24,7 @@
   "homepage": "https://github.com/naufaluqh/notes-api#readme",
   "dependencies": {
     "express": "^5.2.1",
+    "lodash": "^4.17.15",
     "pg": "^8.23.1"
   },
   "devDependencies": {
