@@ -65,3 +65,30 @@ jobs:
             aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa \
             image --input /scan/image.tar --scanners vuln \
             --severity HIGH,CRITICAL --ignore-unfixed --no-progress --exit-code 1
+
+  sbom:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        run: docker build --pull -t notes-api:sbom .
+
+      - name: Save the image to a file
+        run: docker save notes-api:sbom -o "$RUNNER_TEMP/image.tar"
+
+      - name: Generate the SBOM (CycloneDX)
+        run: |
+          docker run --rm -v "$RUNNER_TEMP:/scan:ro" \
+            aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa \
+            image --input /scan/image.tar --format cyclonedx --quiet > "$RUNNER_TEMP/sbom.cdx.json"
+
+      - name: Upload the SBOM as a build artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-cyclonedx
+          path: ${{ runner.temp }}/sbom.cdx.json
+          retention-days: 30
