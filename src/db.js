@@ -13,4 +13,9 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB,
 });
 
+// Resiliency: prevent idle client network dropouts from crashing the entire Node.js process.
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle database client:', err.message);
+});
+
 module.exports = pool;
