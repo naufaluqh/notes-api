@@ -20,6 +20,9 @@ function validateNote({ title, body = '' }) {
   if (typeof body !== 'string') {
     return 'body must be a string';
   }
+  if (body.length > 50000) {
+    return 'body must be 50000 characters or fewer';
+  }
   return null;
 }
 
@@ -63,7 +66,8 @@ router.post('/', async (req, res, next) => {
     return res.status(400).json({ error: problem });
   }
 
-  const { title, body = '' } = req.body;
+  const title = req.body.title.trim();
+  const body = req.body.body ?? '';
   try {
     const { rows } = await pool.query(
       'INSERT INTO notes (title, body) VALUES ($1, $2) RETURNING id, title, body, created_at, updated_at',
@@ -87,7 +91,8 @@ router.put('/:id', async (req, res, next) => {
     return res.status(400).json({ error: problem });
   }
 
-  const { title, body = '' } = req.body;
+  const title = req.body.title.trim();
+  const body = req.body.body ?? '';
   try {
     const { rows } = await pool.query(
       'UPDATE notes SET title = $1, body = $2, updated_at = now() WHERE id = $3 RETURNING id, title, body, created_at, updated_at',

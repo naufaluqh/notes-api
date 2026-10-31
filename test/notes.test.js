@@ -57,4 +57,22 @@ describe('POST /notes', () => {
     const { rows } = await pool.query('SELECT count(*)::int AS total FROM notes');
     expect(rows[0].total).toBe(1);
   });
+
+  it('rejects a body longer than 50000 characters with 400', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .send({ title: 'Valid title', body: 'b'.repeat(50001) });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'body must be 50000 characters or fewer' });
+  });
+
+  it('trims leading and trailing whitespace from the title before storing', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .send({ title: '   Whitespace Title   ', body: 'text' });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.title).toBe('Whitespace Title');
+  });
 });

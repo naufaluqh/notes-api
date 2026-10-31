@@ -4,6 +4,9 @@ const notesRouter = require('./routes/notes');
 
 const app = express();
 
+// Security: do not advertise the server technology to clients.
+app.disable('x-powered-by');
+
 // Error codes that mean "the database cannot be reached right now".
 const DATABASE_UNAVAILABLE_CODES = new Set(['ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', '57P01']);
 
