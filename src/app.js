@@ -40,7 +40,7 @@ app.use((req, res) => {
 });
 
 // Error handler: generic messages for clients, details only in the server log.
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
