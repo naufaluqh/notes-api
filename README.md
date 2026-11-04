@@ -81,9 +81,9 @@ The API container runs as an unprivileged user with a read-only filesystem, no e
 - [x] Repository foundation (Git, pull requests, protected `main` branch)
 - [x] Application and automated tests
 - [x] Containerization with Docker
-- [ ] Continuous integration pipeline
-- [ ] Security gates (secret scanning, dependency scanning, container scanning, SAST)
-- [ ] Infrastructure as code and deployment
+- [x] Continuous integration pipeline
+- [x] Security gates (secret scanning, dependency scanning, container scanning, SAST, IaC scanning)
+- [x] Infrastructure as code (Kubernetes manifests with Zero-Trust network and CIS hardening)
 - [ ] Monitoring and operations
 
 ## Contributing

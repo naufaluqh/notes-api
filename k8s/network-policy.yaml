@@ -1,0 +1,48 @@
+# Zero-Trust Network Policy: Default Deny All Ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: notes
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Allow ingress to API from within cluster / Ingress controller
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-notes-api-ingress
+  namespace: notes
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: notes-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 3000
+---
+# Defense in Depth: Database ONLY accepts connections from notes-api Pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-db-from-notes-api-only
+  namespace: notes
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: notes-db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: notes-api
+      ports:
+        - protocol: TCP
+          port: 5432
