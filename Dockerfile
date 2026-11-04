@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy the dependency manifests first so this layer is cached until they change.
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 
 # The API only needs the node runtime, so remove the package managers.
 # Files from the base image stay in lower layers, so this does not shrink the image,

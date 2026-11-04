@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notes-config
+  namespace: notes
+data:
+  POSTGRES_HOST: "notes-db"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "notes"
+  POSTGRES_USER: "notes_app"
+  PORT: "3000"
