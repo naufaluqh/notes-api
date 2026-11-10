@@ -64,6 +64,7 @@ npm test
 |---|---|---|---|
 | GET | /health | Liveness check | 200 |
 | GET | /ready | Readiness check (includes the database) | 200, or 503 |
+| GET | /metrics | Prometheus metrics endpoint (RED method) | 200 |
 | POST | /notes | Create a note | 201 |
 | GET | /notes | List notes, newest first (max 100) | 200 |
 | GET | /notes/:id | Read one note | 200 |
@@ -84,7 +85,7 @@ The API container runs as an unprivileged user with a read-only filesystem, no e
 - [x] Continuous integration pipeline
 - [x] Security gates (secret scanning, dependency scanning, container scanning, SAST, IaC scanning)
 - [x] Infrastructure as code (Kubernetes manifests with Zero-Trust network and CIS hardening)
-- [ ] Monitoring and operations
+- [x] Monitoring and operations (Prometheus metrics & RED method)
 
 ## Contributing
 
