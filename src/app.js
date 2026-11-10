@@ -1,11 +1,15 @@
 const express = require('express');
 const pool = require('./db');
 const notesRouter = require('./routes/notes');
+const { register, metricsMiddleware } = require('./metrics');
 
 const app = express();
 
 // Security: do not advertise the server technology to clients.
 app.disable('x-powered-by');
+
+// Observability: record metrics (Rate, Errors, Duration) for every request.
+app.use(metricsMiddleware);
 
 // Error codes that mean "the database cannot be reached right now".
 const DATABASE_UNAVAILABLE_CODES = new Set(['ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', '57P01']);
@@ -30,6 +34,12 @@ app.get('/ready', async (req, res) => {
     console.error('Readiness check failed:', err.message);
     res.status(503).json({ status: 'NOT_READY', database: 'DOWN' });
   }
+});
+
+// Prometheus scrape endpoint for metrics collection
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
 });
 
 app.use('/notes', notesRouter);
