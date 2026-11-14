@@ -77,6 +77,34 @@ Errors are returned as JSON, for example `{"error":"Note not found"}`. Invalid i
 
 The API container runs as an unprivileged user with a read-only filesystem, no extra Linux capabilities and `no-new-privileges`. Package managers are removed from the runtime image, and no secret is ever baked into the image: settings are injected at run time from `.env`.
 
+## Monitoring storage and metric labels
+
+Grafana stores its database (including accounts and UI settings) in the
+`grafana_data` named volume mounted at `/var/lib/grafana`. Prometheus stores
+its time-series database in `prometheus_data` mounted at `/prometheus`.
+Dashboard and datasource provisioning files remain version-controlled.
+
+Named volumes survive container recreation and `docker compose down`.
+`docker compose down -v` deletes these volumes **and the PostgreSQL volume**.
+Volumes are persistent storage, not backups.
+
+Before adding these mounts to an existing installation, stop Grafana and
+Prometheus and back up `/var/lib/grafana` and `/prometheus` from their existing
+containers. New named volumes start empty; adding them does not migrate the
+old data automatically. Restore the backups into the new volumes with the
+correct container-user ownership before restarting if retaining history and
+accounts is required. Keep backups outside Git: they can contain credentials.
+
+Unknown HTTP paths share the fixed metric route label `unmatched`; matched
+routes use Express route templates rather than individual note IDs. This
+prevents arbitrary URLs from creating an unbounded number of route labels.
+
+Run the focused regression tests with:
+
+```bash
+npm test -- --runTestsByPath test/metrics.test.js
+```
+
 ## Roadmap
 
 - [x] Repository foundation (Git, pull requests, protected `main` branch)

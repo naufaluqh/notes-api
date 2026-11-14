@@ -31,7 +31,7 @@ function metricsMiddleware(req, res, next) {
 
     // Security: normalize route to prevent Cardinality Explosion DoS.
     // Instead of logging `/notes/123`, we log `/notes/:id` using Express route path.
-    const route = req.route ? `${req.baseUrl || ''}${req.route.path}` : (req.baseUrl || req.path || 'unknown');
+    const route = req.route ? `${req.baseUrl || ''}${req.route.path}` : 'unmatched';
 
     httpRequestDurationSeconds
       .labels(req.method, route, String(res.statusCode))
