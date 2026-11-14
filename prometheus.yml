@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s # Tarik data setiap 5 detik
+
+scrape_configs:
+  - job_name: 'notes-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['api:3000'] # Mengarah ke container api di docker network
