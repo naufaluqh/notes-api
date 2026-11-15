@@ -45,7 +45,7 @@ services:
       - no-new-privileges:true
 
   prometheus:
-    image: prom/prometheus:v2.51.0
+    image: prom/prometheus:v3.16.0
     container_name: notes-prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
